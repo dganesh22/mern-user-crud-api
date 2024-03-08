@@ -46,8 +46,21 @@ const readSingleUser = async (req,res) => {
 // update user
 const updateUser = async (req,res) => {
     try {
-        return res.status(200).json({ msg: 'update user'})
+         // receive id from router params
+         let id = req.params.id
+         // search for an id
+     let single = await User.findById(id)
+         //  err if id not found
+         if(!single)
+             return res.status(400).json({ status: false, msg: `Requested id not found`})
+
+            await User.findByIdAndUpdate({_id: id },req.body)
+            
+        return res.status(200).json({ status: true, msg: 'successfully updated'})
     } catch (err) {
+        if(err.codeName === "DuplicateKey") {
+            return res.status(400).json({ status: false, msg: `Duplicate input, value already exists`})
+        }
         return res.status(500).json({ status: false, msg: err })
     }
 }
@@ -55,7 +68,18 @@ const updateUser = async (req,res) => {
 // delete user
 const  deleteUser = async (req,res) => {
     try {
-        return res.status(200).json({ msg: 'delete user'})
+          // receive id from router params
+          let id = req.params.id
+          // search for an id
+      let single = await User.findById(id)
+          //  err if id not found
+          if(!single)
+              return res.status(400).json({ status: false, msg: `Requested id not found`})
+            
+            // user delete
+         await User.findByIdAndDelete(id)
+
+        return res.status(200).json({ status: true, msg: 'User deleted'})
     } catch (err) {
         return res.status(500).json({ status: false, msg: err })
     }
